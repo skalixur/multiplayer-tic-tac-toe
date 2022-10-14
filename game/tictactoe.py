@@ -2,8 +2,6 @@ import tkinter as tk
 import sys
 import random
 
-from pkg_resources import ensure_directory
-
 window = tk.Tk()
 window.title("TicTacToe")
 
