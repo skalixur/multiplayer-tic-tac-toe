@@ -1,0 +1,23 @@
+{
+  "name": "multiplayer-tic-tac-toe-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SkaLiXuR/multiplayer-tic-tac-toe.git"
+  },
+  "author": "skalixur <juanmateod04@gmail.com> (https://skalixur.github.io/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SkaLiXuR/multiplayer-tic-tac-toe/issues"
+  },
+  "homepage": "https://github.com/SkaLiXuR/multiplayer-tic-tac-toe#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
