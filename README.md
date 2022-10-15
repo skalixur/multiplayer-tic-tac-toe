@@ -22,6 +22,7 @@ clients then `GET` game info, with logic processed by the server (board state, w
 2. `cd` to the `server/` folder
 3. run `npm i` to install dependencies (assuming node.js and npm installed)
 4. run `npm run start`
+5. also port forward :)
 
 # TODO
 
