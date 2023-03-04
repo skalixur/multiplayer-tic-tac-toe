@@ -1,13 +1,13 @@
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 2198
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 2198;
 
-let player1 // | \/
-let player2 // | example player variables
+let player1; // | \/
+let player2; // | example player variables
 
 app.get('/', (req, res, next) => {
-  res.status(200).send('the server is still running')
-})
+  res.status(200).send('the server is still running');
+});
 
 app.post('/boardstate', (req, res, next) => {
   // example post request with board state`
@@ -17,23 +17,24 @@ app.post('/boardstate', (req, res, next) => {
       status: 'OK',
       body: req.body || { msg: 'body was empty' }, // sending back board state
     })
-  )
-})
+  );
+});
 
 app.post('/players/players', (req, res, next) => {
+  console.log(req.query);
   if (!req.query.player1 || !req.query.player2)
-    return res.status(400).send('bad request')
+    return res.status(400).send('bad request');
 
-  player1 = req.query.player1
-  player2 = req.query.player2
-  res.status(200).send('players set')
-})
+  player1 = req.query.player1;
+  player2 = req.query.player2;
+  res.status(200).send('players set');
+});
 
 app.get('/players', (req, res, next) => {
   // when GET requesting players, return current player variables
   if (!player1 || !player2)
-    return res.status(404).send('player1 or player2 has not yet been set')
-  res.status(200).json(JSON.stringify({ player1, player2 }))
-})
+    return res.status(404).send('player1 or player2 has not yet been set');
+  res.status(200).json(JSON.stringify({ player1, player2 }));
+});
 
-app.listen(port, () => console.log(`Listening on *:${port}`))
+app.listen(port, () => console.log(`Listening on *:${port}`));
