@@ -20,12 +20,12 @@ app.post('/boardstate', (req, res, next) => {
   )
 })
 
-app.post('/players', (req, res, next) => {
-  if (!req.body.player1 || !req.body.player2)
+app.post('/players/players', (req, res, next) => {
+  if (!req.query.player1 || !req.query.player2)
     return res.status(400).send('bad request')
 
-  player1 = req.body.player1
-  player2 = req.body.player2
+  player1 = req.query.player1
+  player2 = req.query.player2
   res.status(200).send('players set')
 })
 
