@@ -1,0 +1,16 @@
+1. GET /
+-> "the server is still running"
+
+2. POST /boardstate
+{ body: <some data> }
+-> { statusCode: 200, status: 'OK', body: req.body || 'body was empty'}
+
+3. POST -> /players
+{ body: { player1: <some data>, player2: <some data> } }
+-> 400 'bad request'
+-> 'players set'
+
+4. GET /players
+{ body: { player1: <some data>, player2: <some data> } }
+-> 404 'player1 or player2 has not yet been set'
+{ player1: player1, player2: player2 }
