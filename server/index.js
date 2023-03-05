@@ -2,14 +2,14 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 2199
 
-let player1,
-  boardState = 'bs:_________',
+let boardState = 'bs:_________',
   isFirstPlayer = true,
   goesFirst = Math.random() >= 0.5
 turnCount = 0
 
 app.get('/', (req, res, next) => {
   res.status(200).send('the server is still running')
+  console.log('/ -> the server is still running')
 })
 
 app.post('/clear', (req, res, next) => {
@@ -18,18 +18,29 @@ app.post('/clear', (req, res, next) => {
   isFirstPlayer = true
   goesFirst = Math.random() >= 0.5
   res.status(200).json({ statusCode: 200, message: 'Everything cleared!' })
+  console.log('/clear -> Everything was cleared')
 })
 
 app.get('/isfirstplayer', (req, res, next) => {
-  if (isFirstPlayer)
+  if (isFirstPlayer) {
+    console.log({ statusCode: 200, isFirstPlayer: goesFirst })
     res.status(200).json({ statusCode: 200, isFirstPlayer: goesFirst })
-  if (!isFirstPlayer)
+  }
+  if (!isFirstPlayer) {
+    console.log({ statusCode: 200, isFirstPlayer: !goesFirst })
     res.status(200).json({ statusCode: 200, isFirstPlayer: !goesFirst })
-  if (isFirstPlayer) isFirstPlayer = false
+  }
+  if (isFirstPlayer) {
+    console.log('isFirstPlayer = false')
+    isFirstPlayer = false
+  }
 })
 
 app.get('/boardstate', (req, res, next) => {
   res.status(200).json({ statusCode: 200, boardState, turnCount })
+  console.log(
+    'Retruned boardstate: ' + { statusCode: 200, boardState, turnCount }
+  )
 })
 
 app.post('/boardstate', (req, res, next) => {
@@ -45,31 +56,7 @@ app.post('/boardstate', (req, res, next) => {
     turnCount,
     message: 'Board state set',
   })
-  console.log(boardState)
-})
-
-app.post('/players/players', (req, res, next) => {
-  console.log(req.query)
-  if (!req.query.player1 || !req.query.player2)
-    return res.status(400).json({ statusCode: 400, reason: 'Invalid request' })
-
-  player1 = req.query.player1
-  player2 = req.query.player2
-  res.status(200).json({
-    statusCode: 200,
-    player1: req.query.player1,
-    player2: req.query.player2,
-  })
-})
-
-app.get('/players', (req, res, next) => {
-  // when GET requesting players, return current player variables
-  if (!player1 || !player2)
-    return res.status(404).json({
-      statusCode: 404,
-      reason: 'Player 1 or Player 2 has not yet been set.',
-    })
-  res.status(200).json({ statusCode: 200, player1, player2 })
+  console.log('Boardstate was posted: ' + boardState)
 })
 
 app.listen(port, () => console.log(`Listening on *:${port}`))
