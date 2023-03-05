@@ -35,7 +35,7 @@ get_entry.grid(row=1, column=1)"""
 url = ""
 board=[[],[],[]]
 board_state = "_________"
-can_click = None
+goes_first = None
 is_first_player = None
 local_turn_count = -1
 
@@ -53,7 +53,7 @@ clear_button.grid(row=1, column=3)
 
                   
 def start():
-    global url, symbol, can_click, is_first_player, local_turn_count
+    global url, symbol, goes_first, is_first_player, local_turn_count
     url = url_entry.get()
 
     if url[len(url) - 1]== "/":
@@ -86,9 +86,9 @@ def start():
     game_frame.grid(row=0, column=0)
     
 def click(row, column, symbol):
-    global board_state, can_click, local_turn_count
+    global board_state, goes_first, local_turn_count
 
-    if board[row][column]["text"] != "[_]" or not can_click:
+    if board[row][column]["text"] != "[_]" or not goes_first:
         return
 
     board[row][column].config(text=f"[{symbol}]")
@@ -103,7 +103,7 @@ def click(row, column, symbol):
 
     temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
     print(temp.text)
-    can_click = False
+    goes_first = False
     local_turn_count += 1
 
 def clear():
@@ -112,20 +112,20 @@ def clear():
 
 
 def update():
-    global board, board_state, local_turn_count, can_click
+    global board, board_state, local_turn_count, goes_first
+
+    if goes_first == None:
+        goes_first = is_first_player
 
     data = json.loads(requests.get(url + "/boardstate").text)
 
     if local_turn_count != data.get("turnCount"):
         temp = local_turn_count
         local_turn_count = data.get("turnCount")
-        can_click = True
+        goes_first = True
 
         print(f"local_turn_count update: {temp}->{local_turn_count}")
     
-    if can_click == None:
-        can_click = json.loads(requests.get(url + "/isfirstplayer").text).get("isFirstPlayer")
-        print("can_click update: None ->", can_click)
     data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
 
@@ -133,7 +133,7 @@ def update():
         for j in range(3):
             board[i][j].config(text=f"[{board_state[i*3+j]}]")
     
-    print(f"Boardstate: {board_state}\nTurncount: {local_turn_count}\ncan_click: {can_click}\n")
+    print(f"Boardstate: {board_state}\nTurncount: {local_turn_count}\ncan_click: {goes_first}\n")
             
 
 win.mainloop()
