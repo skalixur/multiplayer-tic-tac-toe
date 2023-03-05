@@ -114,11 +114,13 @@ def clear():
 
 
 def update():
-    global board, board_state, local_turn_count
+    global board, board_state, local_turn_count, can_click
 
     data = json.loads(requests.get(url + "/boardstate").text)
 
-    local_turn_count = data.get("turnCount")
+    if local_turn_count != data.get("turnCount"):
+        local_turn_count = data.get("turnCount")
+        can_click = True
 
     data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
