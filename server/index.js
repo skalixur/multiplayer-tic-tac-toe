@@ -51,7 +51,7 @@ app.post('/boardstate', (req, res, next) => {
 
   if (XWinsRegex.test(boardState)) winner = 'X'
   else if (OWinsRegex.test(boardState)) winner = 'O'
-  else winner = '_'
+  else if (turnCount === 9) winner = '_'
 
   res.status(200).json({
     statusCode: 200,
