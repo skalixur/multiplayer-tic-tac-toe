@@ -1,4 +1,5 @@
 # applepie.loca.lt/
+# http://localhost:6969/
 
 # importing libraries
 import tkinter as tk
@@ -51,17 +52,25 @@ def start():
     global url
     url = url_entry.get()
 
+    if url[len(url) - 1]== "/":
+        url = url.rstrip("/")
+
     # Seeing if the user had done fucked up
     try:
         url_validity_check = requests.get(url)
     except requests.exceptions.MissingSchema:
         return print(f"Invalid URL: {url}")
-    url_validity_check = requests.get(url + "/isfirstplayer")
-    if not url_validity_check:
+    url_validity_check = json.loads(requests.get(url + "/isfirstplayer"))
+    if url_validity_check.get("isFirstPlayer"):
+        symbol = "X"
+    elif url_validity_check.get("isFirstPlayer"):
+        symbol = "O"
+    else:
+        print("There was an error while getting the symbol")
+        
+    if url_validity_check.get("statusCode") != 200:
         return print("Not the actual website...")
     
-    if url[len(url) - 1]== "/":
-        url = url.rstrip("/")
 
     # If the user is smart
     main_menu_frame.grid_forget()
@@ -70,7 +79,10 @@ def start():
 def click(row, column, symbol):
     global board_state
 
-    board[row][column]["text"] = f"[{symbol}]"
+    if board[row][column]["text"] != "[_]":
+        return
+
+    board[row][column].config(text=f"[{symbol}]")
 
     temp = []
     for i in board_state:
