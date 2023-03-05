@@ -1,11 +1,13 @@
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 2199
+const randomMode = true
 
 let player1,
   boardState = 'bs:_________',
   isFirstPlayer = true,
-  turnCount = 0
+  goesFirst = Math.random() >= 0.5
+turnCount = 0
 
 app.get('/', (req, res, next) => {
   res.status(200).send('the server is still running')
@@ -19,7 +21,11 @@ app.post('/clear', (req, res, next) => {
 })
 
 app.get('/isfirstplayer', (req, res, next) => {
-  res.status(200).json({ statusCode: 200, isFirstPlayer })
+  if (!randomMode) res.status(200).json({ statusCode: 200, isFirstPlayer })
+  if (randomMode && isFirstPlayer)
+    res.status(200).json({ statusCode: 200, isFirstPlayer: goesFirst })
+  if (randomMode && !isFirstPlayer)
+    res.status(200).json({ statusCode: 200, isFirstPlayer: !goesFirst })
   if (isFirstPlayer) isFirstPlayer = false
 })
 
