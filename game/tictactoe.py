@@ -68,12 +68,10 @@ def start():
     print(url_validity_check)
     if url_validity_check.get("isFirstPlayer"):
         symbol = "X"
-        can_click = True
         is_first_player = True
         local_turn_count = 0
     elif not url_validity_check.get("isFirstPlayer"):
         symbol = "O"
-        can_click = False
         is_first_player = False
         local_turn_count = 0
     else:
@@ -121,6 +119,9 @@ def update():
     if local_turn_count != data.get("turnCount"):
         local_turn_count = data.get("turnCount")
         can_click = True
+    
+    if can_click == None:
+        can_click = json.loads(requests.get(url + "/firstPlayer").text).get("firstPlayer")
 
     data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
