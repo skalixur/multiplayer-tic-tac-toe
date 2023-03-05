@@ -39,10 +39,12 @@ class Main():
         self.goes_first = None
         self.is_first_player = None
         self.local_turn_count = -1
+        self.game_end = None
+        self.devmode = False
 
         for i in range(3):
             for j in range(3):
-                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=("Times New Roman", 14), width=14, height=7, command=lambda i=i, j=j:self.click(i, j, self.symbol))
+                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=("Times New Roman", 60), width=3, height=1, command=lambda i=i, j=j:self.click(i, j, self.symbol))
                 self.board[i].append(button)
                 button.grid(row=i, column=j)
 
@@ -90,7 +92,7 @@ class Main():
 
     def click(self, row, column, symbol):
 
-        if self.board[row][column]["text"] != "[_]" or not self.goes_first:
+        if (self.board[row][column]["text"] != "[_]" or not self.goes_first or self.game_end) and not self.devmode:
             return
 
         self.board[row][column].config(text=f"[{symbol}]")
@@ -108,10 +110,16 @@ class Main():
         self.goes_first = False
         self.local_turn_count += 1
 
+
     def clear(self):
         temp = requests.post(self.url + f"/clear")
+        self.update()
         print(temp.text)
 
+
+    def check_rows(self):
+        for i in self.board_state:
+            pass
 
     def update(self):
 
