@@ -29,6 +29,7 @@ app.post('/boardstate', (req, res, next) => {
   res
     .status(200)
     .json({ statusCode: 200, boardState, message: 'Board state set' })
+  console.log(boardState)
 })
 
 app.post('/players/players', (req, res, next) => {
