@@ -17,7 +17,7 @@ app.get('/', (req, res, next) => {
 })
 
 app.get('/boardstate', (req, res, next) => {
-  res.status(200).json({ statusCode: 200, boardstate: boardState })
+  res.status(200).json({ statusCode: 200, boardState })
 })
 
 app.post('/boardstate', (req, res, next) => {
