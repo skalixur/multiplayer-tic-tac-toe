@@ -51,7 +51,7 @@ def start():
     if not url_validity_check:
         return print("Not the actual website...")
     
-    if url[len(url)]== "/":
+    if url[len(url) - 1]== "/":
         url = url.rstrip("/")
 
     # If the user is smart
