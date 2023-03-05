@@ -25,7 +25,7 @@ url_entry.grid(row=1, column=0)
 url_entry.insert(0, "https://applepie.loca.lt/")
 url_send_button.grid(row=2, column=0)
 
-symbol = "O"
+symbol = "P"
 
 """post_button.grid(row=0, column=0)
 get_button.grid(row=1, column=0)
@@ -49,7 +49,7 @@ clear_button.grid(row=1, column=3)
 
                   
 def start():
-    global url
+    global url, symbol
     url = url_entry.get()
 
     if url[len(url) - 1]== "/":
@@ -60,14 +60,15 @@ def start():
         url_validity_check = requests.get(url)
     except requests.exceptions.MissingSchema:
         return print(f"Invalid URL: {url}")
-    url_validity_check = json.loads(requests.get(url + "/isfirstplayer"))
+    url_validity_check = json.loads(requests.get(url + "/isfirstplayer").text)
+    print(url_validity_check)
     if url_validity_check.get("isFirstPlayer"):
         symbol = "X"
-    elif url_validity_check.get("isFirstPlayer"):
+    elif not url_validity_check.get("isFirstPlayer"):
         symbol = "O"
     else:
         print("There was an error while getting the symbol")
-        
+
     if url_validity_check.get("statusCode") != 200:
         return print("Not the actual website...")
     
