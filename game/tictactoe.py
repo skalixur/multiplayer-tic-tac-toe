@@ -117,12 +117,15 @@ def update():
     data = json.loads(requests.get(url + "/boardstate").text)
 
     if local_turn_count != data.get("turnCount"):
+        temp = local_turn_count
         local_turn_count = data.get("turnCount")
         can_click = True
+
+        print(f"local_turn_count update: {temp}->{local_turn_count}")
     
     if can_click == None:
         can_click = json.loads(requests.get(url + "/isfirstplayer").text).get("isFirstPlayer")
-        print("none!")
+        print("can_click update: None ->", can_click)
     data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
 
