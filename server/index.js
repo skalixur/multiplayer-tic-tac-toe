@@ -4,8 +4,13 @@ const port = process.env.PORT || 2199
 
 let player1 // | \/
 let player2 // | example player variables
-let boardState
+let boardState = 'bs:_________'
 let isFirstPlayer = false
+
+app.post('/clear', (req, res, next) => {
+  boardState = 'bs:_________'
+  res.status(200).json({ statusCode: 200, message: 'Board cleared!' })
+})
 
 app.get('/isfirstplayer', (req, res, next) => {
   res.status(200).json({ statusCode: 200, isFirstPlayer })
