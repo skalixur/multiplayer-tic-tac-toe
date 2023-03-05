@@ -141,7 +141,8 @@ class Main():
                 self.winner_label.config(text="Draw!", fg="gray")
             else:
                 self.winner_label.config(text="You lose!", fg="red")
-
+        if self.local_turn_count < 5 and self.winner_label["text"] != "":
+            self.winner_label.config(text="")
         if self.local_turn_count != data.get("turnCount"):
             temp = self.local_turn_count
             self.local_turn_count = data.get("turnCount")

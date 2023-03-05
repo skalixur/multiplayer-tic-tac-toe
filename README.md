@@ -16,6 +16,16 @@ clients then `GET` game info, with logic processed by the server (board state, w
 
 # how to use it
 
+(using localtunnel https://theboroer.github.io/localtunnel-www/)
+
+1. download the main branch
+2. download the python libraries tictactoe.py uses using pip
+3. open multiplayer-tic-tac-toe\server in cmd
+4. type "node ." (without ") -> Now the server is running
+5. type lt -p [the port you want to use (4 digits)] -s [name of the server, optional, but recommended]
+6. send the url that you get from this to your partner and they can use it to connect
+7. enjoy
+
 ## the server part
 
 1. `git clone` the repo
