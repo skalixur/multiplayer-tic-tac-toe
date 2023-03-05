@@ -121,7 +121,7 @@ def update():
         can_click = True
     
     if can_click == None:
-        can_click = json.loads(requests.get(url + "/firstPlayer").text).get("firstPlayer")
+        can_click = json.loads(requests.get(url + "/isfirstplayer").text).get("firstPlayer")
 
     data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
