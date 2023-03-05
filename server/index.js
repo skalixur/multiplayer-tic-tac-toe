@@ -4,8 +4,8 @@ const port = process.env.PORT || 2199
 
 let boardState = 'bs:_________',
   isFirstPlayer = true,
-  goesFirst = Math.random() >= 0.5
-turnCount = 0
+  goesFirst = Math.random() >= 0.5,
+  turnCount = 0
 
 app.get('/', (req, res, next) => {
   res.status(200).send('the server is still running')
