@@ -53,7 +53,7 @@ clear_button.grid(row=1, column=3)
 
                   
 def start():
-    global url, symbol
+    global url, symbol, can_click, is_first_player, local_turn_count
     url = url_entry.get()
 
     if url[len(url) - 1]== "/":
