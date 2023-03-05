@@ -121,8 +121,8 @@ def update():
         can_click = True
     
     if can_click == None:
-        can_click = json.loads(requests.get(url + "/isfirstplayer").text).get("firstPlayer")
-
+        can_click = json.loads(requests.get(url + "/isfirstplayer").text).get("isFirstPlayer")
+        print("none!")
     data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
 
@@ -130,7 +130,7 @@ def update():
         for j in range(3):
             board[i][j].config(text=f"[{board_state[i*3+j]}]")
     
-    print(f"Boardstate: {board_state}\nTurncount: {local_turn_count}\n")
+    print(f"Boardstate: {board_state}\nTurncount: {local_turn_count}\ncan_click: {can_click}\n")
             
 
 win.mainloop()
