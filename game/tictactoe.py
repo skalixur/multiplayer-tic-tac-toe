@@ -9,6 +9,7 @@ from threading import Timer
 import time
 import re
 import sys
+import traceback
 
 class Main():
 
@@ -56,10 +57,6 @@ class Main():
                     
     def start(self):
         self.url = self.url_entry.get()
-
-        self.update_timer = RepeatTimer(1, self.update)
-        self.update_timer.start()
-
         if self.url[len(self.url) - 1]== "/":
             self.url = self.url.rstrip("/")
 
@@ -67,7 +64,13 @@ class Main():
         try:
             self.url_validity_check = requests.get(self.url)
         except requests.exceptions.MissingSchema:
-            return print(f"Invalid URL: {self.url}")
+            return print(f"Bad URL schema with url: {self.url}")
+        if int(self.url_validity_check.text) == 404:
+            return print(f"Couldn't connect to url: {self.url}\nMaybe it's not online?")
+        
+        self.update_timer = RepeatTimer(1, self.update)
+        self.update_timer.start()
+
         self.url_validity_check = json.loads(requests.get(self.url + "/isfirstplayer").text)
         print(self.url_validity_check)
         if self.url_validity_check.get("goesFirst"):
@@ -83,8 +86,7 @@ class Main():
 
         if self.url_validity_check.get("statusCode") != 200:
             return print("Not the actual website...")
-        
-        # If the user is smart
+
         self.main_menu_frame.grid_forget()
         self.game_frame.grid(row=0, column=0)
         
@@ -168,7 +170,6 @@ class RepeatTimer(Timer):
     def run(self):  
         while not self.finished.wait(self.interval):  
             self.function(*self.args,**self.kwargs)  
-            print('RepeatTimer called')  
 
 if __name__ == "__main__":
     app = Main()

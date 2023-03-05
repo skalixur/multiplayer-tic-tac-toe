@@ -6,13 +6,13 @@ Multiplayer tic tac toe collaboration with @[ricsirogi](https://github.com/ricsi
 
 ## the server (maybe)
 
-clients `POST` game info (location of pick, players, playernames*, and other game info)
+clients `POST` game info (location of pick, players, playernames\*, and other game info)
 
 clients then `GET` game info, with logic processed by the server (board state, winners, score, possible pick locations, and other info that needs to be transferred from clients)
 
 ^ this will work depending on how i make the server
 
-^ a smarter method would probably be using websockets but idk how to use those so i guess i gotta learn ¯\\\_(ツ)_/¯
+^ a smarter method would probably be using websockets but idk how to use those so i guess i gotta learn ¯\\\_(ツ)\_/¯(but he wont :) )
 
 # how to use it
 
@@ -26,6 +26,10 @@ clients then `GET` game info, with logic processed by the server (board state, w
 
 # TODO
 
-- make it work
-- make the server
-- redo the python part
+- make it work done
+- make the server done
+- redo the python part ddone
+
+- play again popup after game end (gameplay loop)
+- usernames and display of usernames
+- display scores
