@@ -5,135 +5,152 @@
 import tkinter as tk
 import requests 
 import json
-import threading
+from threading import Timer
 import time
 import re
+import sys
 
-# creating tkinter window
-win = tk.Tk()
+class Main():
 
-main_menu_frame = tk.Frame(win)
-game_frame = tk.Frame(win)
+    def __init__(self):
 
-url_label = tk.Label(main_menu_frame, text="Type the url of your partner")
-url_entry = tk.Entry(main_menu_frame)
-url_send_button = tk.Button(main_menu_frame, text="Post", command=lambda:start())
+        # creating tkinter window
+        self.win = tk.Tk()
+        self.win.title("multiplayer tictactoe")
 
-main_menu_frame.grid(row=0, column=0)
-url_label.grid(row=0, column=0)
-url_entry.grid(row=1, column=0)
-url_entry.insert(0, "https://applepie.loca.lt/")
-url_send_button.grid(row=2, column=0)
+        self.main_menu_frame = tk.Frame(self.win)
+        self.game_frame = tk.Frame(self.win)
 
-symbol = "P"
+        self.url_label = tk.Label(self.main_menu_frame, text="Type the url of your partner")
+        self.url_entry = tk.Entry(self.main_menu_frame)
+        self.url_send_button = tk.Button(self.main_menu_frame, text="Post", command=lambda:self.start())
 
-"""post_button.grid(row=0, column=0)
-get_button.grid(row=1, column=0)
-post_entry.grid(row=0, column=1)
-get_entry.grid(row=1, column=1)"""
+        self.main_menu_frame.grid(row=0, column=0)
+        self.url_label.grid(row=0, column=0)
+        self.url_entry.grid(row=1, column=0)
+        self.url_entry.insert(0, "https://applepie.loca.lt/")
+        self.url_send_button.grid(row=2, column=0)
 
-url = ""
-board=[[],[],[]]
-board_state = "_________"
-goes_first = None
-is_first_player = None
-local_turn_count = -1
+        self.symbol = "P"
+
+        self.url = ""
+        self.board=[[],[],[]]
+        self.board_state = "_________"
+        self.goes_first = None
+        self.is_first_player = None
+        self.local_turn_count = -1
+
+        for i in range(3):
+            for j in range(3):
+                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=("Times New Roman", 14), width=14, height=7, command=lambda i=i, j=j:self.click(i, j, self.symbol))
+                self.board[i].append(button)
+                button.grid(row=i, column=j)
+
+        self.get_button = tk.Button(self.game_frame, text="GET", command=lambda:self.update())
+        self.get_button.grid(row=0, column=3)
+        self.clear_button = tk.Button(self.game_frame, text="CLEAR", command=lambda:self.clear())
+        self.clear_button.grid(row=1, column=3)
+
+                    
+    def start(self):
+        self.url = self.url_entry.get()
+
+        self.update_timer = RepeatTimer(1, self.update)
+        self.update_timer.start()
+
+        if self.url[len(self.url) - 1]== "/":
+            self.url = self.url.rstrip("/")
+
+        # Seeing if the user had done fucked up
+        try:
+            self.url_validity_check = requests.get(self.url)
+        except requests.exceptions.MissingSchema:
+            return print(f"Invalid URL: {self.url}")
+        self.url_validity_check = json.loads(requests.get(self.url + "/isfirstplayer").text)
+        print(self.url_validity_check)
+        if self.url_validity_check.get("goesFirst"):
+            self.symbol = "X"
+            self.is_first_player = True
+            self.local_turn_count = 0
+        elif not self.url_validity_check.get("goesFirst"):
+            self.symbol = "O"
+            self.is_first_player = False
+            self.local_turn_count = 0
+        else:
+            print("There was an error while getting the symbol")
+
+        if self.url_validity_check.get("statusCode") != 200:
+            return print("Not the actual website...")
+        
+        # If the user is smart
+        self.main_menu_frame.grid_forget()
+        self.game_frame.grid(row=0, column=0)
+        
+        self.update()
+
+    def click(self, row, column, symbol):
+
+        if self.board[row][column]["text"] != "[_]" or not self.goes_first:
+            return
+
+        self.board[row][column].config(text=f"[{symbol}]")
+
+        temp = []
+        for i in self.board_state:
+            temp.append(i)
+        temp[row*3+column] = symbol
+        self.board_state = ""
+        for i in temp:
+            self.board_state += i
+
+        temp = requests.post(self.url + f"/boardstate?boardstate=bs:{self.board_state}")
+        print(temp.text)
+        self.goes_first = False
+        self.local_turn_count += 1
+
+    def clear(self):
+        temp = requests.post(self.url + f"/clear")
+        print(temp.text)
 
 
-for i in range(3):
-    for j in range(3):
-        button = tk.Button(game_frame, text="[_]", borderwidth=1, font=("Times New Roman", 14), width=14, height=7, command=lambda i=i, j=j:click(i, j, symbol))
-        board[i].append(button)
-        button.grid(row=i, column=j)
+    def update(self):
 
-get_button = tk.Button(game_frame, text="GET", command=lambda:update())
-get_button.grid(row=0, column=3)
-clear_button = tk.Button(game_frame, text="CLEAR", command=lambda:clear())
-clear_button.grid(row=1, column=3)
+        if self.goes_first == None:
+            self.goes_first = self.is_first_player
 
-                  
-def start():
-    global url, symbol, goes_first, is_first_player, local_turn_count
-    url = url_entry.get()
+        data = json.loads(requests.get(self.url + "/boardstate").text)
 
-    if url[len(url) - 1]== "/":
-        url = url.rstrip("/")
+        if self.local_turn_count != data.get("turnCount"):
+            temp = self.local_turn_count
+            self.local_turn_count = data.get("turnCount")
+            self.goes_first = True
 
-    # Seeing if the user had done fucked up
-    try:
-        url_validity_check = requests.get(url)
-    except requests.exceptions.MissingSchema:
-        return print(f"Invalid URL: {url}")
-    url_validity_check = json.loads(requests.get(url + "/isfirstplayer").text)
-    print(url_validity_check)
-    if url_validity_check.get("goesFirst"):
-        symbol = "X"
-        is_first_player = True
-        local_turn_count = 0
-    elif not url_validity_check.get("goesFirst"):
-        symbol = "O"
-        is_first_player = False
-        local_turn_count = 0
-    else:
-        print("There was an error while getting the symbol")
+            print(f"local_turn_count update: {temp}->{self.local_turn_count}")
+        
+        data = re.sub(r'.', '', data.get("boardState"), count = 3)
+        self.board_state = data
 
-    if url_validity_check.get("statusCode") != 200:
-        return print("Not the actual website...")
+        for i in range(3):
+            for j in range(3):
+                self.board[i][j].config(text=f"[{self.board_state[i*3+j]}]")
+        
+        print(f"Boardstate: {self.board_state}\nTurncount: {self.local_turn_count}\ncan_click: {self.goes_first}\n")
+
+    def stop_timer(self):
+        try:
+            self.update_timer.cancel()
+        except AttributeError: # If the timer was already stopped
+            pass
+
+        sys.exit()
     
+class RepeatTimer(Timer):  
+    def run(self):  
+        while not self.finished.wait(self.interval):  
+            self.function(*self.args,**self.kwargs)  
+            print('RepeatTimer called')  
 
-    # If the user is smart
-    main_menu_frame.grid_forget()
-    game_frame.grid(row=0, column=0)
-    
-def click(row, column, symbol):
-    global board_state, goes_first, local_turn_count
-
-    if board[row][column]["text"] != "[_]" or not goes_first:
-        return
-
-    board[row][column].config(text=f"[{symbol}]")
-
-    temp = []
-    for i in board_state:
-        temp.append(i)
-    temp[row*3+column] = symbol
-    board_state = ""
-    for i in temp:
-        board_state += i
-
-    temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
-    print(temp.text)
-    goes_first = False
-    local_turn_count += 1
-
-def clear():
-    temp = requests.post(url + f"/clear")
-    print(temp.text)
-
-
-def update():
-    global board, board_state, local_turn_count, goes_first
-
-    if goes_first == None:
-        goes_first = is_first_player
-
-    data = json.loads(requests.get(url + "/boardstate").text)
-
-    if local_turn_count != data.get("turnCount"):
-        temp = local_turn_count
-        local_turn_count = data.get("turnCount")
-        goes_first = True
-
-        print(f"local_turn_count update: {temp}->{local_turn_count}")
-    
-    data = re.sub(r'.', '', data.get("boardState"), count = 3)
-    board_state = data
-
-    for i in range(3):
-        for j in range(3):
-            board[i][j].config(text=f"[{board_state[i*3+j]}]")
-    
-    print(f"Boardstate: {board_state}\nTurncount: {local_turn_count}\ncan_click: {goes_first}\n")
-            
-
-win.mainloop()
+if __name__ == "__main__":
+    app = Main()
+    app.win.protocol("WM_DELETE_WINDOW", app.stop_timer)
+    app.win.mainloop()
