@@ -17,6 +17,7 @@ app.post('/clear', (req, res, next) => {
   boardState = 'bs:_________'
   turnCount = 0
   isFirstPlayer = true
+  goesFirst = Math.random() >= 0.5
   res.status(200).json({ statusCode: 200, message: 'Everything cleared!' })
 })
 
