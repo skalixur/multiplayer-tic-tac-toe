@@ -35,7 +35,7 @@ app.get('/isfirstplayer', (req, res, next) => {
 })
 
 app.get('/boardstate', (req, res, next) => {
-  res.status(200).json({ statusCode: 200, boardState, turnCount })
+  res.status(200).json({ statusCode: 200, boardState, turnCount, winner })
 })
 
 app.post('/boardstate', (req, res, next) => {
