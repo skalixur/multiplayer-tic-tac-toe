@@ -66,11 +66,11 @@ def start():
         return print(f"Invalid URL: {url}")
     url_validity_check = json.loads(requests.get(url + "/isfirstplayer").text)
     print(url_validity_check)
-    if url_validity_check.get("isFirstPlayer"):
+    if url_validity_check.get("goesFirst"):
         symbol = "X"
         is_first_player = True
         local_turn_count = 0
-    elif not url_validity_check.get("isFirstPlayer"):
+    elif not url_validity_check.get("goesFirst"):
         symbol = "O"
         is_first_player = False
         local_turn_count = 0
