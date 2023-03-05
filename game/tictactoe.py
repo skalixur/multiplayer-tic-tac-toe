@@ -65,7 +65,7 @@ class Main():
             self.url_validity_check = requests.get(self.url)
         except requests.exceptions.MissingSchema:
             return print(f"Bad URL schema with url: {self.url}")
-        if int(self.url_validity_check.text) == 404:
+        if str(self.url_validity_check.text) == "404":
             return print(f"Couldn't connect to url: {self.url}\nMaybe it's not online?")
         
         self.update_timer = RepeatTimer(1, self.update)
