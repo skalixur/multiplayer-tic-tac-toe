@@ -36,11 +36,11 @@ board_state = "_________"
 
 for i in range(3):
     for j in range(3):
-        button = tk.Button(game_frame, text="[]", borderwidth=1, font=("Times New Roman", 14), width=14, height=7, command=lambda i=i, j=j:click(i, j, symbol))
+        button = tk.Button(game_frame, text="[_]", borderwidth=1, font=("Times New Roman", 14), width=14, height=7, command=lambda i=i, j=j:click(i, j, symbol))
         board[i].append(button)
         button.grid(row=i, column=j)
 
-get_button = tk.Button(game_frame, text="GET", command=lambda:get())
+get_button = tk.Button(game_frame, text="GET", command=lambda:update())
 get_button.grid(row=0, column=3)
 
 def start():
@@ -65,7 +65,9 @@ def start():
     
 def click(row, column, symbol):
     global board_state
+
     board[row][column]["text"] = f"[{symbol}]"
+
     temp = []
     for i in board_state:
         temp.append(i)
@@ -73,16 +75,18 @@ def click(row, column, symbol):
     board_state = ""
     for i in temp:
         board_state += i
-        
+
+
     temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
     print(temp.text)
 
-def get():
+def update():
     global board, board_state
 
     data = requests.get(url + "/boardstate")
     data = json.loads(data.text).get('boardState')
-
+    temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
+    print(temp.text)
     # data indexing thing has a +3 after it because it starts with "bs:" and we dont need that shit"
     for i in range(3):
         for j in range(3):
