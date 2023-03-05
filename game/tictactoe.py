@@ -49,11 +49,10 @@ class Main():
                 self.board[i].append(button)
                 button.grid(row=i, column=j)
 
-        self.get_button = tk.Button(self.game_frame, text="GET", command=lambda:self.update())
-        self.get_button.grid(row=0, column=3)
         self.clear_button = tk.Button(self.game_frame, text="CLEAR", command=lambda:self.clear())
         self.clear_button.grid(row=1, column=3)
-
+        self.winner_label = tk.Label(self.game_frame, text="")
+        self.winner_label.grid(row=0, column=3)
                     
     def start(self):
         self.url = self.url_entry.get()
@@ -123,13 +122,18 @@ class Main():
             pass
 
     def update(self):
-
         if self.goes_first == None:
             self.goes_first = self.is_first_player
 
         data = json.loads(requests.get(self.url + "/boardstate").text)
 
         self.winner = data.get("winner")
+        if self.winner != None:
+            self.game_end = True
+            if self.winner == self.symbol:
+                self.winner_label.config(text="You win!", fg="light_green")
+            else:
+                self.winner_label.config(text="You lose!", fg="red")
 
         if self.local_turn_count != data.get("turnCount"):
             temp = self.local_turn_count
