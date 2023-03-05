@@ -4,6 +4,9 @@
 import tkinter as tk
 import requests 
 import json
+import threading
+import time
+
 # creating tkinter window
 win = tk.Tk()
 
@@ -17,6 +20,7 @@ url_send_button = tk.Button(main_menu_frame, text="Post", command=lambda:start()
 main_menu_frame.grid(row=0, column=0)
 url_label.grid(row=0, column=0)
 url_entry.grid(row=1, column=0)
+url_entry.insert(0, "https://applepie.loca.lt/")
 url_send_button.grid(row=2, column=0)
 
 symbol = "O"
@@ -60,29 +64,30 @@ def start():
     game_frame.grid(row=0, column=0)
     
 def click(row, column, symbol):
+    global board_state
     board[row][column]["text"] = f"[{symbol}]"
-    board_state[row*3+column] = symbol
-
-    temp = requests.post(url + f"/boardstate?boardstate={board_state}")
-    print(temp.text)
-
-def post():
-    data = post_entry.get()
-
-    endpoint = ""
-
-    """print(url)
-    print(url + endpoint + f"?player1={p1}&player2={p2}")"""
-
-    temp = requests.post(url + f"/?player1={p1}&player2={p2}"+ board_state)
+    temp = []
+    for i in board_state:
+        temp.append(i)
+    temp[row*3+column] = symbol
+    board_state = ""
+    for i in temp:
+        board_state += i
+        
+    temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
     print(temp.text)
 
 def get():
+    global board, board_state
 
     data = requests.get(url + "/boardstate")
-    data = json.loads(json.loads(data.text))
+    data = json.loads(data.text).get('boardstate')
 
-    print(data.text)
+    # data indexing thing has a +3 after it because it starts with "bs:" and we dont need that shit"
+    for i in range(3):
+        for j in range(3):
+            board[i][j].config(text=f"[{data[i*3+j+3]}]")
+            
 
 win.mainloop()
 
