@@ -81,7 +81,7 @@ def get():
     global board, board_state
 
     data = requests.get(url + "/boardstate")
-    data = json.loads(data.text).get('boardstate')
+    data = json.loads(data.text).get('boardState')
 
     # data indexing thing has a +3 after it because it starts with "bs:" and we dont need that shit"
     for i in range(3):
