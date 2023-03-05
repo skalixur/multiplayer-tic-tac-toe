@@ -115,6 +115,7 @@ class Main():
         temp = requests.post(self.url + f"/clear")
         self.goes_first = None
         self.game_end = False
+        self.winner_label["text"] = ""
         self.update()
         print(temp.text)
 
