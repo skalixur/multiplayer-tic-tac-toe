@@ -41,6 +41,7 @@ class Main():
         self.local_turn_count = -1
         self.game_end = None
         self.devmode = False
+        self.winner = None
 
         for i in range(3):
             for j in range(3):
@@ -128,6 +129,8 @@ class Main():
 
         data = json.loads(requests.get(self.url + "/boardstate").text)
 
+        self.winner = data.get("winner")
+
         if self.local_turn_count != data.get("turnCount"):
             temp = self.local_turn_count
             self.local_turn_count = data.get("turnCount")
@@ -142,7 +145,7 @@ class Main():
             for j in range(3):
                 self.board[i][j].config(text=f"[{self.board_state[i*3+j]}]")
         
-        print(f"Boardstate: {self.board_state}\nTurncount: {self.local_turn_count}\ncan_click: {self.goes_first}\n")
+        print(f"Boardstate: {self.board_state}\nTurncount: {self.local_turn_count}\ncan_click: {self.goes_first}\nwinner: {self.winner}")
 
     def stop_timer(self):
         try:
