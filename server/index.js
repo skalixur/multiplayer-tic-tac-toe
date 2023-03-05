@@ -22,6 +22,7 @@ app.post('/clear', (req, res, next) => {
   turnCount = 0
   isFirstPlayer = true
   goesFirst = Math.random() >= 0.5
+  winner = null
   res.status(200).json({ statusCode: 200, message: 'Everything cleared!' })
 })
 
