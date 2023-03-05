@@ -141,8 +141,6 @@ class Main():
                 self.winner_label.config(text="Draw!", fg="gray")
             else:
                 self.winner_label.config(text="You lose!", fg="red")
-        if self.local_turn_count < 5 and self.winner_label["text"] != "":
-            self.winner_label.config(text="")
         if self.local_turn_count != data.get("turnCount"):
             temp = self.local_turn_count
             self.local_turn_count = data.get("turnCount")
@@ -157,6 +155,8 @@ class Main():
             for j in range(3):
                 self.board[i][j].config(text=f"[{self.board_state[i*3+j]}]")
         
+        if self.local_turn_count < 5 and self.winner_label["text"] != "":
+            self.winner_label.config(text="")
         print(f"Boardstate: {self.board_state}\nTurncount: {self.local_turn_count}\ncan_click: {self.goes_first}\nwinner: {self.winner}")
 
     def stop_timer(self):
