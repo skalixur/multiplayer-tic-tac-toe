@@ -23,12 +23,12 @@ app.post('/clear', (req, res, next) => {
 
 app.get('/isfirstplayer', (req, res, next) => {
   if (isFirstPlayer) {
-    console.log({ statusCode: 200, isFirstPlayer: goesFirst })
-    res.status(200).json({ statusCode: 200, isFirstPlayer: goesFirst })
+    console.log({ statusCode: 200, goesFirst })
+    res.status(200).json({ statusCode: 200, goesFirst })
   }
   if (!isFirstPlayer) {
-    console.log({ statusCode: 200, isFirstPlayer: !goesFirst })
-    res.status(200).json({ statusCode: 200, isFirstPlayer: !goesFirst })
+    console.log({ statusCode: 200, goesFirst: !goesFirst })
+    res.status(200).json({ statusCode: 200, goesFirst: !goesFirst })
   }
   if (isFirstPlayer) {
     console.log('isFirstPlayer = false')
