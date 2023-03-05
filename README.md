@@ -20,15 +20,7 @@ using [localtunnel](https://theboroer.github.io/localtunnel-www/) `npm install l
 73231. `cd` to the `game/` folder, and run `python tictactoe.py` (both people should do this)
 358. give the url you got in step 6 to your partner.
 349. enjoy
-174456694201231231231230. (because i want it to be 10 steps) have fun
-
-## the server part
-
-1. `git clone` the repo
-2. `cd` to the `server/` folder
-3. run `npm i` to install dependencies (assuming node.js and npm installed)
-4. run `npm run start`
-5. also port forward :)
+174451230. (because i want it to be 10 steps) have fun
 
 # TODO
 
