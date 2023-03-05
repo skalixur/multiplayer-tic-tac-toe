@@ -6,6 +6,7 @@ import requests
 import json
 import threading
 import time
+import re
 
 # creating tkinter window
 win = tk.Tk()
@@ -76,17 +77,19 @@ def click(row, column, symbol):
     for i in temp:
         board_state += i
 
-
     temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
     print(temp.text)
+
+
 
 def update():
     global board, board_state
 
     data = requests.get(url + "/boardstate")
     data = json.loads(data.text).get('boardState')
-    temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
-    print(temp.text)
+
+    data = re.sub(r'.', '', data, count = 3)
+    board_state = data
     # data indexing thing has a +3 after it because it starts with "bs:" and we dont need that shit"
     for i in range(3):
         for j in range(3):
