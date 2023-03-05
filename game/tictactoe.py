@@ -37,6 +37,7 @@ for i in range(3):
         button.grid(row=i, column=j)
 
 get_button = tk.Button(game_frame, text="GET", command=lambda:get())
+get_button.grid(row=0, column=3)
 
 def start():
     global url
