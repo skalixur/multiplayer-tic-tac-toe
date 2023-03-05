@@ -132,9 +132,11 @@ class Main():
             self.game_end = True
             if self.winner == self.symbol:
                 self.winner_label.config(text="You win!", fg="#00ff40")
+            elif self.winner == "_":
+                self.winner_label.config(text="Draw!", fg="gray")
             else:
                 self.winner_label.config(text="You lose!", fg="red")
-            
+
         if self.local_turn_count != data.get("turnCount"):
             temp = self.local_turn_count
             self.local_turn_count = data.get("turnCount")
