@@ -6,10 +6,20 @@ let player1 // | \/
 let player2 // | example player variables
 let boardState = 'bs:_________'
 let isFirstPlayer = true
+let turnCount = 0
+
+// 0 > 1st player 1st turn - 0 -> 1
+// 1 -> 2nd player 1st turn - 1 -> 2
+
+app.get('/turncount', (req, res, next) => {
+  res.status(200).json({ statusCode: 200, turnCount })
+})
 
 app.post('/clear', (req, res, next) => {
   boardState = 'bs:_________'
-  res.status(200).json({ statusCode: 200, message: 'Board cleared!' })
+  turnCount = 0
+  isFirstPlayer = true
+  res.status(200).json({ statusCode: 200, message: 'Everything cleared!' })
 })
 
 app.get('/isfirstplayer', (req, res, next) => {
@@ -31,6 +41,7 @@ app.post('/boardstate', (req, res, next) => {
       .status(400)
       .json({ statusCode: 400, reason: 'Invalid board state' })
   boardState = req.query.boardstate
+  turnCount += 1
   res
     .status(200)
     .json({ statusCode: 200, boardState, message: 'Board state set' })
