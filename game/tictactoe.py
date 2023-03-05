@@ -93,7 +93,7 @@ def update():
     # data indexing thing has a +3 after it because it starts with "bs:" and we dont need that shit"
     for i in range(3):
         for j in range(3):
-            board[i][j].config(text=f"[{data[i*3+j+3]}]")
+            board[i][j].config(text=f"[{data[i*3+j]}]")
             
 
 win.mainloop()
