@@ -43,7 +43,10 @@ for i in range(3):
 
 get_button = tk.Button(game_frame, text="GET", command=lambda:update())
 get_button.grid(row=0, column=3)
+clear_button = tk.Button(game_frame, text="CLEAR", command=lambda:clear())
+clear_button.grid(row=1, column=3)
 
+                  
 def start():
     global url
     url = url_entry.get()
@@ -80,6 +83,10 @@ def click(row, column, symbol):
     temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
     print(temp.text)
 
+
+def clear():
+    temp = requests.post(url + f"/clear")
+    print(temp.text)
 
 
 def update():
