@@ -113,6 +113,8 @@ class Main():
 
     def clear(self):
         temp = requests.post(self.url + f"/clear")
+        self.goes_first = None
+        self.game_end = False
         self.update()
         print(temp.text)
 
