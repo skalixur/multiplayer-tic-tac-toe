@@ -2,17 +2,13 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 2199
 
-let player1 // | \/
-let player2 // | example player variables
-let boardState = 'bs:_________'
-let isFirstPlayer = true
-let turnCount = 0
+let player1,
+  boardState = 'bs:_________',
+  isFirstPlayer = true,
+  turnCount = 0
 
-// 0 > 1st player 1st turn - 0 -> 1
-// 1 -> 2nd player 1st turn - 1 -> 2
-
-app.get('/turncount', (req, res, next) => {
-  res.status(200).json({ statusCode: 200, turnCount })
+app.get('/', (req, res, next) => {
+  res.status(200).send('the server is still running')
 })
 
 app.post('/clear', (req, res, next) => {
@@ -27,12 +23,8 @@ app.get('/isfirstplayer', (req, res, next) => {
   if (isFirstPlayer) isFirstPlayer = false
 })
 
-app.get('/', (req, res, next) => {
-  res.status(200).send('the server is still running')
-})
-
 app.get('/boardstate', (req, res, next) => {
-  res.status(200).json({ statusCode: 200, boardState })
+  res.status(200).json({ statusCode: 200, boardState, turnCount })
 })
 
 app.post('/boardstate', (req, res, next) => {
@@ -41,10 +33,13 @@ app.post('/boardstate', (req, res, next) => {
       .status(400)
       .json({ statusCode: 400, reason: 'Invalid board state' })
   boardState = req.query.boardstate
-  turnCount += 1
-  res
-    .status(200)
-    .json({ statusCode: 200, boardState, message: 'Board state set' })
+  turnCount += 1 /////////////////
+  res.status(200).json({
+    statusCode: 200,
+    boardState,
+    turnCount,
+    message: 'Board state set',
+  })
   console.log(boardState)
 })
 
