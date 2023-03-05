@@ -35,6 +35,10 @@ get_entry.grid(row=1, column=1)"""
 url = ""
 board=[[],[],[]]
 board_state = "_________"
+can_click = None
+is_first_player = None
+local_turn_count = -1
+
 
 for i in range(3):
     for j in range(3):
@@ -64,8 +68,14 @@ def start():
     print(url_validity_check)
     if url_validity_check.get("isFirstPlayer"):
         symbol = "X"
+        can_click = True
+        is_first_player = True
+        local_turn_count = 0
     elif not url_validity_check.get("isFirstPlayer"):
         symbol = "O"
+        can_click = False
+        is_first_player = False
+        local_turn_count = 0
     else:
         print("There was an error while getting the symbol")
 
@@ -78,9 +88,9 @@ def start():
     game_frame.grid(row=0, column=0)
     
 def click(row, column, symbol):
-    global board_state
+    global board_state, can_click, local_turn_count
 
-    if board[row][column]["text"] != "[_]":
+    if board[row][column]["text"] != "[_]" or not can_click:
         return
 
     board[row][column].config(text=f"[{symbol}]")
@@ -95,7 +105,8 @@ def click(row, column, symbol):
 
     temp = requests.post(url + f"/boardstate?boardstate=bs:{board_state}")
     print(temp.text)
-
+    can_click = False
+    local_turn_count += 1
 
 def clear():
     temp = requests.post(url + f"/clear")
@@ -103,18 +114,20 @@ def clear():
 
 
 def update():
-    global board, board_state
+    global board, board_state, local_turn_count
 
-    data = requests.get(url + "/boardstate")
-    data = json.loads(data.text).get('boardState')
+    data = json.loads(requests.get(url + "/boardstate").text)
 
-    data = re.sub(r'.', '', data, count = 3)
+    local_turn_count = data.get("turnCount")
+
+    data = re.sub(r'.', '', data.get("boardState"), count = 3)
     board_state = data
-    # data indexing thing has a +3 after it because it starts with "bs:" and we dont need that shit"
+
     for i in range(3):
         for j in range(3):
-            board[i][j].config(text=f"[{data[i*3+j]}]")
+            board[i][j].config(text=f"[{board_state[i*3+j]}]")
+    
+    print(f"Boardstate: {board_state}\nTurncount: {local_turn_count}\n")
             
 
 win.mainloop()
-
