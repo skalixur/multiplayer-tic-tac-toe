@@ -4,7 +4,7 @@ const port = process.env.PORT || 2199
 
 let player1 // | \/
 let player2 // | example player variables
-let boardstate
+let boardState
 let isFirstPlayer = false
 
 app.get('/isfirstplayer', (req, res, next) => {
@@ -17,7 +17,7 @@ app.get('/', (req, res, next) => {
 })
 
 app.get('/boardstate', (req, res, next) => {
-  res.status(200).json({ statusCode: 200, boardstate })
+  res.status(200).json({ statusCode: 200, boardstate: boardState })
 })
 
 app.post('/boardstate', (req, res, next) => {
@@ -25,7 +25,10 @@ app.post('/boardstate', (req, res, next) => {
     return res
       .status(400)
       .json({ statusCode: 400, reason: 'Invalid board state' })
-  boardstate = req.query.boardstate
+  boardState = req.query.boardstate
+  res
+    .status(200)
+    .json({ statusCode: 200, boardState, message: 'Board state set' })
 })
 
 app.post('/players/players', (req, res, next) => {
