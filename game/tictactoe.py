@@ -42,7 +42,7 @@ class Main():
         self.is_first_player = None
         self.local_turn_count = -1
         self.game_end = None
-        self.devmode = True
+        self.devmode = False
         self.winner = None
 
         for i in range(3):
