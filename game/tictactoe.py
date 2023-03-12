@@ -6,6 +6,8 @@ from threading import Thread
 import re
 import sys
 import socketio
+import os
+
 sio = socketio.Client()
 url_validity_regex = r"^(((([A-Za-z]{2,5}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)(:[0-9]{1,5})?)$"
 
@@ -179,7 +181,7 @@ class Main():
             f"Boardstate: {self.board_state}\nTurncount: {self.local_turn_count}\ncan_click: {self.goes_first}\nwinner: {self.winner}")
 
     def stop_timer(self):
-        sys.exit()
+        os._exit(0)
 
 
 if __name__ == "__main__":
