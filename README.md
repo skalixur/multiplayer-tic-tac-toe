@@ -31,7 +31,7 @@ using [localtunnel](https://theboroer.github.io/localtunnel-www/) `npm install l
 - play again popup after game end (gameplay loop)
 - usernames and display of usernames
 - display scores
-
-(server)
-
-- implement web sockets to make it FAST
+- bugfixes
+  - sometimes can_click just doesn't
+- learn websockets in python DONE
+- learn asynchronous functions in python DONE (kinda, didn't even use it)
