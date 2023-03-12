@@ -40,7 +40,9 @@ io.on('connect', socket => {
   if (isFirstPlayer) {
     isFirstPlayer = false
     socket.emit('goes-first', goesFirst)
-  } else socket.emit('goes-first', !goesFirst)
+  } else {
+    socket.emit('goes-first', !goesFirst)
+  }
 
   socket.on('setplayers', data => {
     if (
@@ -53,15 +55,14 @@ io.on('connect', socket => {
   })
 
   socket.on('clear', data => {
-    if (data?.clearScore === undefined) return
+    // if (data?.clearScore === undefined) return
     boardState = '_________'
     turnCount = 0
     isFirstPlayer = true
     goesFirst = Math.random() >= 0.5
     winner = null
-    player1Score = data.clearScore ? 0 : player1Score
-    player1Score = data.clearScore ? 0 : player2Score
-    socket.emit('debug-events', 'Everything cleared!')
+    // player1Score = data.clearScore ? 0 : player1Score
+    // player1Score = data.clearScore ? 0 : player2Score
     io.emit(
       'board-state',
       JSON.stringify({
@@ -75,7 +76,14 @@ io.on('connect', socket => {
         player2Name,
       })
     )
-    console.log('Everything was cleared')
+
+    if (isFirstPlayer) {
+      isFirstPlayer = false
+      socket.emit('goes-first', goesFirst)
+      socket.broadcast.emit('goes-first', !goesFirst)
+    }
+
+    console.table({ INFO: 'Everything was cleared', goesFirst })
   })
 
   socket.on('board-state', data => {
@@ -103,9 +111,17 @@ io.on('connect', socket => {
         player2Name,
       })
     )
-    console.log(`Received: ${data}`)
-    console.log(`Emitted to all:`)
-    console.log({ boardState, turnCount, winner, clear: false })
+    console.table({
+      INFO: 'Emitted to all:',
+      boardState,
+      turnCount,
+      winner,
+      clear: false,
+      player1Score,
+      player2Score,
+      player1Name,
+      player2Name,
+    })
   })
 
   socket.on('message', data => {
