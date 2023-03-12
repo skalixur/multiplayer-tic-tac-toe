@@ -22,8 +22,10 @@ io.on('connect', socket => {
   console.log(`Someone connected!\nConnection count: ${io.engine.clientsCount}`)
 
   // handle who goes first
-  if (isFirstPlayer) socket.emit('goes-first', goesFirst)
-  else socket.emit('goes-first', !goesFirst)
+  if (isFirstPlayer) {
+    isFirstPlayer = false
+    socket.emit('goes-first', goesFirst)
+  } else socket.emit('goes-first', !goesFirst)
 
   socket.on('clear', data => {
     boardState = '_________'
@@ -32,7 +34,10 @@ io.on('connect', socket => {
     goesFirst = Math.random() >= 0.5
     winner = null
     socket.emit('debug-events', 'Everything cleared!')
-    io.emit('board-state', JSON.stringify({ boardState, turnCount, winner }))
+    io.emit(
+      'board-state',
+      JSON.stringify({ boardState, turnCount, winner, clear: true })
+    )
     console.log('Everything was cleared')
   })
 
@@ -49,7 +54,7 @@ io.on('connect', socket => {
     io.emit('board-state', JSON.stringify({ boardState, turnCount, winner }))
     console.log(`Received: ${data}`)
     console.log(`Emitted to all:`)
-    console.log({ boardState, turnCount, winner })
+    console.log({ boardState, turnCount, winner, clear: false })
   })
 
   socket.on('debug', data => {
