@@ -53,7 +53,7 @@ io.on('connect', socket => {
   })
 
   socket.on('clear', data => {
-    if (data.clearScore === undefined) return
+    if (data?.clearScore === undefined) return
     boardState = '_________'
     turnCount = 0
     isFirstPlayer = true
