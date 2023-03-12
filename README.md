@@ -43,3 +43,7 @@ clients then `GET` game info, with logic processed by the server (board state, w
 - play again popup after game end (gameplay loop)
 - usernames and display of usernames
 - display scores
+- bugfixes
+  - sometimes can_click just doesn't
+- learn websockets in python DONE
+- learn asynchronous functions in python DONE (kinda, didn't even use it)
