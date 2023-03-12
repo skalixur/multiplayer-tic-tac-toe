@@ -4,7 +4,7 @@ Multiplayer tic tac toe collaboration with @[ricsirogi](https://github.com/ricsi
 
 # how it works
 
-both clients connect to the server, and afterwards the server responds with whether or not you go first. the validation of the server also happens in this stage. after that, the clients both repeatedly GET the boardstate from the server every 1s (very inefficient, i know) when a player clicks on a button, the updated boardstate is POSTed to the server. (yes, this makes it incredibly easy to cheat) The server then validates the board state, uses regex to determine if theres a winner yet, and sends back the board state data. this cycle repeats until the boardstate is evaluated to be either a win or a draw.
+couldnt be bothered
 
 # how to use it
 
@@ -24,14 +24,15 @@ using [localtunnel](https://theboroer.github.io/localtunnel-www/) `npm install l
 
 # TODO
 
-- make it work done
-- make the server done
-- redo the python part ddone
+- ~~make it work~~
+- ~~make the server~~
+- ~~redo the python part~~
 
 - play again popup after game end (gameplay loop)
 - usernames and display of usernames
 - display scores
+- ~~learn websockets in python~~
+- ~~learn asynchronous functions in python (not really, didn't even use it)~~
+
 - bugfixes
-  - sometimes can_click just doesn't
-- learn websockets in python DONE
-- learn asynchronous functions in python DONE (kinda, didn't even use it)
+  - ~~sometimes `can_click` just doesn't~~
