@@ -28,6 +28,14 @@ io.on('connect', socket => {
     connectionCount: io.engine.clientsCount,
   })
 
+  socket.on('disconnect', reason => {
+    console.table({
+      INFO: 'Someone disconnected!',
+      connectionCount: io.engine.clientsCount,
+      reason,
+    })
+  }) // Special -> Occurs on disconnect
+
   // handle who goes first
   if (isFirstPlayer) {
     isFirstPlayer = false
@@ -100,18 +108,14 @@ io.on('connect', socket => {
     console.log({ boardState, turnCount, winner, clear: false })
   })
 
+  socket.on('message', data => {
+    socket.broadcast.emit(data)
+  })
+
   socket.on('debug', data => {
     console.log(data)
     socket.emit('debug', `server response: ${data}`)
   })
-
-  socket.on('disconnect', reason => {
-    console.table({
-      INFO: 'Someone disconnected!',
-      connectionCount: io.engine.clientsCount,
-      reason,
-    })
-  }) // Special -> Occurs on disconnect
 })
 
 io.listen(port)
