@@ -4,7 +4,6 @@ import tkinter as tk
 import json
 from threading import Thread
 import re
-import sys
 import socketio
 import os
 
