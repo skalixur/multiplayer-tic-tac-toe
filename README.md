@@ -33,6 +33,7 @@ using [localtunnel](https://theboroer.github.io/localtunnel-www/) `npm install l
 - display scores
 - ~~learn websockets in python~~
 - ~~learn asynchronous functions in python (not really, didn't even use it)~~
+- add an "it's your turn" display
 
 - bugfixes
   - ~~sometimes `can_click` just doesn't~~
