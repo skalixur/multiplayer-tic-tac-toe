@@ -1,6 +1,5 @@
 # http://localhost:6969
 
-
 # importing libraries
 import tkinter as tk
 import json
@@ -8,36 +7,22 @@ from threading import Thread
 import re
 import socketio
 import os
+import config
+import random
 
 sio = socketio.Client()
 url_validity_regex = r"^(((([A-Za-z]{2,5}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)(:[0-9]{1,5})?)$"
 
+config_data = config.__dict__.get("data")
+random_usernames = config_data.get("random_usernames")
+button_font = config_data.get("font")
+
 
 class Main():
-
     def __init__(self):
 
-        # creating tkinter window
-        self.win = tk.Tk()
-        self.win.title("multiplayer tictactoe")
-
-        self.main_menu_frame = tk.Frame(self.win)
-        self.game_frame = tk.Frame(self.win)
-
-        self.url_label = tk.Label(
-            self.main_menu_frame, text="Type the url of your partner")
-        self.url_entry = tk.Entry(self.main_menu_frame)
-        self.url_send_button = tk.Button(
-            self.main_menu_frame, text="Post", command=lambda: self.start())
-
-        self.main_menu_frame.grid(row=0, column=0)
-        self.url_label.grid(row=0, column=0)
-        self.url_entry.grid(row=1, column=0)
-        self.url_entry.insert(0, "http://25.46.199.8:2198")
-        self.url_send_button.grid(row=2, column=0)
-
-        self.symbol = "P"
-
+        self.own_symbol = "P"
+        self.other_symbol = "PP"
         self.url = ""
         self.board = [[], [], []]
         self.board_state = "_________"
@@ -48,22 +33,56 @@ class Main():
         self.devmode = False
         self.winner = None
         self.received_goes_first = False
+        self.own_username = "##1234567890123456##"
+        self.other_username = "###1234567890123456###"
 
+        # creating tkinter window
+        self.win = tk.Tk()
+        self.win.title("multiplayer tictactoe")
+
+        # creating frames
+        self.main_menu_frame = tk.Frame(self.win)
+        self.game_frame = tk.Frame(self.win)
+
+        # widgets in main_menu_frame
+        self.url_label = tk.Label(
+            self.main_menu_frame, text="Type the url of your partner")
+        self.url_entry = tk.Entry(self.main_menu_frame)
+        self.url_label = tk.Label(self.main_menu_frame, text="URL:")
+        self.username_entry = tk.Entry(self.main_menu_frame)
+        self.username_label = tk.Label(self.main_menu_frame, text="Username:")
+        self.url_send_button = tk.Button(
+            self.main_menu_frame, text="Connect", command=lambda: self.start())
+
+        self.main_menu_frame.grid(row=0, column=0)
+        self.url_label.grid(row=0, column=0)
+        self.url_entry.grid(row=0, column=1)
+        self.username_label.grid(row=1, column=0)
+        self.username_entry.grid(row=1, column=1)
+        self.url_entry.insert(0, "http://25.46.199.8:2198")
+        self.url_send_button.grid(row=3, column=0, columnspan=2)
+
+        # widgets in game_frame
         for i in range(3):
             for j in range(3):
-                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=(
-                    "Times New Roman", 60), width=3, height=1, command=lambda i=i, j=j: self.click(i, j, self.symbol))
+                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=button_font, width=5,
+                                   height=2, command=lambda i=i, j=j: self.click(i, j, self.own_symbol))
                 self.board[i].append(button)
-                button.grid(row=i, column=j)
+                button.grid(row=i+1, column=j)
 
         self.clear_button = tk.Button(
             self.game_frame, text="Replay", command=lambda: self.clear())
 
-        # if self.devmode:
-        self.clear_button.grid(row=1, column=3)
+        self.own_username_display_label = tk.Label(self.game_frame)
+        self.other_username_display_label = tk.Label(self.game_frame)
+        self.winner_label = tk.Label(self.game_frame)
 
-        self.winner_label = tk.Label(self.game_frame, text="")
+        self.own_username_display_label.grid(row=0, column=0,)
+        self.other_username_display_label.grid(row=0, column=2)
         self.winner_label.grid(row=0, column=3)
+
+        if self.devmode:
+            self.clear_button.grid(row=1, column=3)
 
     @sio.on("debug-events")
     def log_events(data):
@@ -77,7 +96,7 @@ class Main():
             self.winner = board_state.get("winner")
             if self.winner != None:
                 self.game_end = True
-                if self.winner == self.symbol:
+                if self.winner == self.own_symbol:
                     self.winner_label.config(text="You win!", fg="#00ff40")
                 elif self.winner == "_":
                     self.winner_label.config(text="Draw!", fg="gray")
@@ -113,21 +132,49 @@ class Main():
 
         @sio.on("goes-first")
         def first_player(is_first_player):
-            print("got first player: ", is_first_player)
             if is_first_player:
-                self.symbol = "X"
+                self.own_symbol = "X"
+                self.other_symbol = "O"
                 self.is_first_player = True
                 self.local_turn_count = 0
-
             elif not is_first_player:
-                self.symbol = "O"
+                self.own_symbol = "O"
+                self.other_symbol = "X"
                 self.is_first_player = False
                 self.local_turn_count = 0
             else:
                 print("There was an error while getting the symbol")
             self.received_goes_first = True
 
+            # handling username
+            if self.username_entry.get() != "":
+                self.own_username = self.username_entry.get()
+            else:
+                while len(self.own_username) > 16:
+                    self.own_username = random_usernames[random.randint(
+                        0, len(random_usernames))] + str(random.randint(0, 999))
+            if self.is_first_player:
+                sio.emit("setplayers", {"player": 1,
+                         "playerName": self.own_username})
+            else:
+                sio.emit("setplayers", {"player": 2,
+                         "playerName": self.own_username})
+
+            temp = f"{self.own_symbol} - {self.own_username} (You)"
+            self.own_username_display_label.config(text=temp)
+
             self.update()
+
+        @sio.on("playernames")
+        def receive_player_names(data):
+            if self.is_first_player:
+                self.other_username = data.get("player2Name")
+            else:
+                self.other_username = data.get("player1Name")
+
+            if self.other_username != "":
+                temp = f"{self.other_symbol} - {self.other_username} (Them)"
+                self.other_username_display_label.config(text=temp)
 
         self.url = self.url_entry.get()
         if self.url[len(self.url) - 1] == "/":
@@ -174,9 +221,15 @@ class Main():
         sio.emit("board-state", self.board_state)
         self.goes_first = False
         self.local_turn_count += 1
+        font = list(button_font)
+        font.append("underline")
+        self.other_username_display_label.config(
+            font=tuple(font))
+
+        print(font)
 
     def clear(self):
-        sio.emit("clear")
+        sio.emit("clear", {"clearScore": True})
 
     def update(self):
         if self.goes_first == None and self.received_goes_first:
@@ -188,7 +241,7 @@ class Main():
             self.winner_label.config(text="")
 
         print(
-            f"Boardstate: {self.board_state}\nTurncount: {self.local_turn_count}\ncan_click: {self.goes_first}\nwinner: {self.winner}")
+            f"Boardstate : {self.board_state}\nTurncount  : {self.local_turn_count}\ncan_click  : {self.goes_first}\nwinner     : {self.winner}")
 
     def stop_timer(self):
         os._exit(0)
