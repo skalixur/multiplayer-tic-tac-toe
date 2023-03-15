@@ -14,8 +14,9 @@ sio = socketio.Client()
 url_validity_regex = r"^(((([A-Za-z]{2,5}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)(:[0-9]{1,5})?)$"
 
 config_data = config.__dict__.get("data")
-random_usernames = config_data.get("random_usernames")
-button_font = config_data.get("font")
+random_usernames = config.data.get("random_usernames")
+button_font = config.data.get("button_font")
+label_font = config.data.get("label_font")
 
 
 class Main():
@@ -65,8 +66,8 @@ class Main():
         # widgets in game_frame
         for i in range(3):
             for j in range(3):
-                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=button_font, width=5,
-                                   height=2, command=lambda i=i, j=j: self.click(i, j, self.own_symbol))
+                button = tk.Button(self.game_frame, text="[_]", borderwidth=1, font=button_font, width=3,
+                                   height=1, command=lambda i=i, j=j: self.click(i, j, self.own_symbol))
                 self.board[i].append(button)
                 button.grid(row=i+1, column=j)
 
@@ -87,6 +88,15 @@ class Main():
     @sio.on("debug-events")
     def log_events(data):
         print("debug: ", data)
+
+    def label_boldyfier(self, label, doit):
+        if doit:
+            font = list(label_font)
+            font.append("bold")
+            label.config(
+                font=tuple(font))
+        else:
+            label.config(font=label_font)
 
     def start(self):
         @sio.on("board-state")
@@ -130,18 +140,35 @@ class Main():
                     self.clear_button.grid_forget()
                 self.received_goes_first = False
 
-        @sio.on("goes-first")
+            if self.goes_first:
+                print("********\nother no\nme yes\n********")
+                # remove highlight other player's username
+                self.label_boldyfier(self.other_username_display_label, False)
+
+                # highlight own username
+                self.label_boldyfier(self.own_username_display_label, True)
+
+        @ sio.on("goes-first")
         def first_player(is_first_player):
             if is_first_player:
                 self.own_symbol = "X"
                 self.other_symbol = "O"
                 self.is_first_player = True
                 self.local_turn_count = 0
+
+                print("********\nme yes\n********")
+                # highlight own username
+                self.label_boldyfier(self.own_username_display_label, True)
+
             elif not is_first_player:
                 self.own_symbol = "O"
                 self.other_symbol = "X"
                 self.is_first_player = False
                 self.local_turn_count = 0
+
+                print("********\nother yes\n********")
+                # highlight other username
+                self.label_boldyfier(self.other_username_display_label, True)
             else:
                 print("There was an error while getting the symbol")
             self.received_goes_first = True
@@ -165,7 +192,7 @@ class Main():
 
             self.update()
 
-        @sio.on("playernames")
+        @ sio.on("playernames")
         def receive_player_names(data):
             if self.is_first_player:
                 self.other_username = data.get("player2Name")
@@ -221,12 +248,13 @@ class Main():
         sio.emit("board-state", self.board_state)
         self.goes_first = False
         self.local_turn_count += 1
-        font = list(button_font)
-        font.append("underline")
-        self.other_username_display_label.config(
-            font=tuple(font))
 
-        print(font)
+        print("********\nother yes\nme no\n********")
+        # highlight other player's username
+        self.label_boldyfier(self.other_username_display_label, True)
+
+        # remove highlight own username
+        self.label_boldyfier(self.own_username_display_label, False)
 
     def clear(self):
         sio.emit("clear", {"clearScore": True})
