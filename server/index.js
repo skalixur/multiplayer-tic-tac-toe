@@ -26,12 +26,14 @@ io.on('connect', socket => {
   console.table({
     INFO: 'Someone connected!',
     connectionCount: io.engine.clientsCount,
+    connectionId: socket.id,
   })
 
   socket.on('disconnect', reason => {
     console.table({
       INFO: 'Someone disconnected! Disconnecting all clients.',
       connectionCount: io.engine.clientsCount,
+      connectionId: socket.id,
       reason,
     })
     io.disconnectSockets(true)
@@ -56,12 +58,13 @@ io.on('connect', socket => {
 
   socket.on('setplayers', data => {
     if (
-      !data?.player_name ||
+      !data?.playerName ||
       (!data?.player && data.player > 0 && data.player < 3)
     )
       return
-    if (data.player === 1) player1Name = data.player_name
-    else player2Name = data.player_name
+    console.table({ INFO: 'Setplayers was triggered', ...data })
+    if (data.player === 1) player1Name = data.playerName
+    else player2Name = data.playerName
     io.emit('playernames', { player1Name, player2Name })
   })
 
