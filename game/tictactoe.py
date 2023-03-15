@@ -1,3 +1,5 @@
+# http://localhost:6969
+
 
 # importing libraries
 import tkinter as tk
@@ -45,6 +47,7 @@ class Main():
         self.game_end = None
         self.devmode = False
         self.winner = None
+        self.received_goes_first = False
 
         for i in range(3):
             for j in range(3):
@@ -56,8 +59,8 @@ class Main():
         self.clear_button = tk.Button(
             self.game_frame, text="Replay", command=lambda: self.clear())
 
-        if self.devmode:
-            self.clear_button.grid(row=1, column=3)
+        # if self.devmode:
+        self.clear_button.grid(row=1, column=3)
 
         self.winner_label = tk.Label(self.game_frame, text="")
         self.winner_label.grid(row=0, column=3)
@@ -106,20 +109,26 @@ class Main():
                 self.update()
                 if self.clear_button.winfo_ismapped() and not self.devmode:
                     self.clear_button.grid_forget()
+                self.received_goes_first = False
 
         @sio.on("goes-first")
         def first_player(is_first_player):
-            print(is_first_player)
+            print("got first player: ", is_first_player)
             if is_first_player:
                 self.symbol = "X"
                 self.is_first_player = True
                 self.local_turn_count = 0
+
             elif not is_first_player:
                 self.symbol = "O"
                 self.is_first_player = False
                 self.local_turn_count = 0
             else:
                 print("There was an error while getting the symbol")
+            self.received_goes_first = True
+
+            self.update()
+
         self.url = self.url_entry.get()
         if self.url[len(self.url) - 1] == "/":
             self.url = self.url.rstrip("/")
@@ -170,8 +179,10 @@ class Main():
         sio.emit("clear")
 
     def update(self):
-        if self.goes_first == None:
+        if self.goes_first == None and self.received_goes_first:
             self.goes_first = self.is_first_player
+        else:
+            return
 
         if self.local_turn_count < 5 and self.winner_label["text"] != "":
             self.winner_label.config(text="")
