@@ -62,6 +62,7 @@ io.on('connect', socket => {
       return
     if (data.player === 1) player1Name = data.player_name
     else player2Name = data.player_name
+    io.emit('playernames', { player1Name, player2Name })
   })
 
   socket.on('clear', data => {
