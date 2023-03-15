@@ -30,10 +30,20 @@ io.on('connect', socket => {
 
   socket.on('disconnect', reason => {
     console.table({
-      INFO: 'Someone disconnected!',
+      INFO: 'Someone disconnected! Disconnecting all clients.',
       connectionCount: io.engine.clientsCount,
       reason,
     })
+    io.disconnectSockets(true)
+    boardState = '_________'
+    turnCount = 0
+    isFirstPlayer = true
+    goesFirst = Math.random() >= 0.5
+    winner = null
+    player1Score = 0
+    player2Score = 0
+    player1Name = ''
+    player2Name = ''
   }) // Special -> Occurs on disconnect
 
   // handle who goes first
@@ -55,14 +65,14 @@ io.on('connect', socket => {
   })
 
   socket.on('clear', data => {
-    // if (data?.clearScore === undefined) return
+    if (data?.clearScore === undefined) return
     boardState = '_________'
     turnCount = 0
     isFirstPlayer = true
     goesFirst = Math.random() >= 0.5
     winner = null
-    // player1Score = data.clearScore ? 0 : player1Score
-    // player1Score = data.clearScore ? 0 : player2Score
+    player1Score = data.clearScore ? 0 : player1Score
+    player2Score = data.clearScore ? 0 : player2Score
     io.emit(
       'board-state',
       JSON.stringify({
@@ -93,8 +103,10 @@ io.on('connect', socket => {
 
     // test for winner
     if (XWinsRegex.test(boardState)) {
+      player1Score++
       winner = 'X'
     } else if (OWinsRegex.test(boardState)) {
+      player2Score++
       winner = 'O'
     } else if (turnCount === 9) winner = '_'
 
