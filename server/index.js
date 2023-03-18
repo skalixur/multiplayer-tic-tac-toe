@@ -8,7 +8,9 @@ let boardState = 'bs:_________',
   player1Name = '',
   player2Name = '',
   player1Score = 0,
-  player2Score = 0
+  player2Score = 0,
+  playerDict = {}
+  set = false
 
 let XWinsRegex =
   /(XXX[XO_]{6})|([XO_]{3}XXX[XO_]{3})|([XO_]{6}XXX)|(X[XO_]{2}X[XO_]{2}X[XO_]{2})|([XO_]X[XO_]{2}X[XO_]{2}X[XO_])|([XO_]{2}X[XO_]{2}X[XO_]{2}X)|(X[XO_]{3}X[XO_]{3}X)|([XO_]{2}X[XO_]X[XO_]X[XO_]{2})/g
@@ -46,6 +48,8 @@ io.on('connect', socket => {
     player2Score = 0
     player1Name = ''
     player2Name = ''
+    playerDict = {}
+    set = false
   }) // Special -> Occurs on disconnect
 
   // handle who goes first
@@ -66,6 +70,15 @@ io.on('connect', socket => {
     if (data.player === 1) player1Name = data.playerName
     else player2Name = data.playerName
     io.emit('playernames', { player1Name, player2Name })
+
+    // set the ACTUAL first and second player which will be permanent
+    // now I know the name and symbol of each player
+    if (set === false) {
+      playerDict = {player1: [player1Name, player1Score],
+                  player2: [player2Name, player2Score]}
+      if (playerDict["player1"][0] != "" && playerDict["player2"][0] != ""){ // when we have both players' names, lock them in
+        set = true
+      }}
   })
 
   socket.on('clear', data => {
@@ -105,14 +118,39 @@ io.on('connect', socket => {
     boardState = data
     turnCount += 1
 
-    // test for winner
+    /* test for winner 
+    this used to assume that player1 is only x and player 2 is always O
+    Now the usernames have a :{symbol} at the end,
+    and also theres a dictionary that stores p1 and p2 and their scores
+    (the code may be able to be optimized but I don't do js so idk)*/
     if (XWinsRegex.test(boardState)) {
-      player1Score++
       winner = 'X'
     } else if (OWinsRegex.test(boardState)) {
-      player2Score++
       winner = 'O'
     } else if (turnCount === 9) winner = '_'
+    if (winner != '_') {
+      console.log(playerDict)
+      if (player1Name.slice(-1) === winner) {
+          if (player1Name.slice(0, -1) === playerDict["player1"][0].slice(0, -1)) { // if the current p1 is the actual p1
+            playerDict["player1"][1]++ // then the actual p1 gets the point
+          } else {
+            playerDict["player2"][1]++ // else the actual p2 gets the point
+          }
+      }
+      else if (player2Name.slice(-1) === winner) { 
+        if (player2Name.slice(0, -1) === playerDict["player2"][0].slice(0, -1)) { // else if the current p2 is the actual p2 
+          playerDict["player2"][1]++ // then the actual p2 gets the point
+        } else {
+          playerDict["player1"][1]++ // else the actual p1 gets the point
+        }
+      } 
+      try {
+        player1Score = playerDict["player1"][1]
+        player2Score = playerDict["player2"][1]
+      } catch (TypeError) {
+        console.log("playerDict[\"player1/2\"][1/2] doesN't exist")
+      }
+    }
 
     io.emit(
       'board-state',
