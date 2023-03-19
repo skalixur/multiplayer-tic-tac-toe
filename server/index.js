@@ -5,12 +5,8 @@ let boardState = 'bs:_________',
   goesFirst = Math.random() >= 0.5,
   turnCount = 0,
   winner = null,
-  player1Name = '',
-  player2Name = '',
-  player1Score = 0,
-  player2Score = 0,
-  playerDict = {}
-  set = false
+  player1 = { name: '', score: 0, symbol: '' },
+  player2 = { name: '', score: 0, symbol: '' }
 
 let XWinsRegex =
   /(XXX[XO_]{6})|([XO_]{3}XXX[XO_]{3})|([XO_]{6}XXX)|(X[XO_]{2}X[XO_]{2}X[XO_]{2})|([XO_]X[XO_]{2}X[XO_]{2}X[XO_])|([XO_]{2}X[XO_]{2}X[XO_]{2}X)|(X[XO_]{3}X[XO_]{3}X)|([XO_]{2}X[XO_]X[XO_]X[XO_]{2})/g
@@ -24,32 +20,29 @@ const io = new Server()
 // io.engine.clientsCount -> Number of clients
 // socket.once('one-time-event') -> Receive an event, but once
 
-io.on('connect', socket => {
+io.on('connect', (socket) => {
   console.table({
     INFO: 'Someone connected!',
     connectionCount: io.engine.clientsCount,
     connectionId: socket.id,
   })
 
-  socket.on('disconnect', reason => {
+  socket.on('disconnect', (reason) => {
     console.table({
       INFO: 'Someone disconnected! Disconnecting all clients.',
       connectionCount: io.engine.clientsCount,
       connectionId: socket.id,
       reason,
     })
+    io.emit('disconn')
     io.disconnectSockets(true)
     boardState = '_________'
     turnCount = 0
     isFirstPlayer = true
     goesFirst = Math.random() >= 0.5
     winner = null
-    player1Score = 0
-    player2Score = 0
-    player1Name = ''
-    player2Name = ''
-    playerDict = {}
-    set = false
+    player1 = { name: '', score: 0, symbol: '' }
+    player2 = { name: '', score: 0, symbol: '' }
   }) // Special -> Occurs on disconnect
 
   // handle who goes first
@@ -60,36 +53,36 @@ io.on('connect', socket => {
     socket.emit('goes-first', !goesFirst)
   }
 
-  socket.on('setplayers', data => {
+  socket.on('setplayers', (data) => {
     if (
       !data?.playerName ||
       (!data?.player && data.player > 0 && data.player < 3)
     )
       return
     console.table({ INFO: 'Setplayers was triggered', ...data })
-    if (data.player === 1) player1Name = data.playerName
-    else player2Name = data.playerName
-    io.emit('playernames', { player1Name, player2Name })
 
-    // set the ACTUAL first and second player which will be permanent
-    // now I know the name and symbol of each player
-    if (set === false) {
-      playerDict = {player1: [player1Name, player1Score],
-                  player2: [player2Name, player2Score]}
-      if (playerDict["player1"][0] != "" && playerDict["player2"][0] != ""){ // when we have both players' names, lock them in
-        set = true
-      }}
+    if (data.player === 1) {
+      player1.name = data.playerName
+      player1.symbol = data.playerSymbol
+    } else if (data.player === 2) {
+      player2.name = data.playerName
+      player2.symbol = data.playerSymbol
+    }
+    io.emit('players', {
+      player1,
+      player2,
+    })
   })
 
-  socket.on('clear', data => {
+  socket.on('clear', (data) => {
     if (data?.clearScore === undefined) return
     boardState = '_________'
     turnCount = 0
     isFirstPlayer = true
     goesFirst = Math.random() >= 0.5
     winner = null
-    player1Score = data.clearScore ? 0 : player1Score
-    player2Score = data.clearScore ? 0 : player2Score
+    player1.score = data.clearScore ? 0 : player1.score
+    player2.score = data.clearScore ? 0 : player2.score
     io.emit(
       'board-state',
       JSON.stringify({
@@ -97,11 +90,9 @@ io.on('connect', socket => {
         turnCount,
         winner,
         clear: true,
-        player1Score,
-        player2Score,
-        player1Name,
-        player2Name,
-      })
+        player1,
+        player2,
+      }),
     )
 
     if (isFirstPlayer) {
@@ -113,45 +104,20 @@ io.on('connect', socket => {
     console.table({ INFO: 'Everything was cleared', goesFirst })
   })
 
-  socket.on('board-state', data => {
+  socket.on('board-state', (data) => {
     if (/[_XO]{9}/g.test(data.boardstate)) return
     boardState = data
     turnCount += 1
-
-    /* test for winner 
-    this used to assume that player1 is only x and player 2 is always O
-    Now the usernames have a :{symbol} at the end,
-    and also theres a dictionary that stores p1 and p2 and their scores
-    (the code may be able to be optimized but I don't do js so idk)*/
     if (XWinsRegex.test(boardState)) {
       winner = 'X'
     } else if (OWinsRegex.test(boardState)) {
       winner = 'O'
     } else if (turnCount === 9) winner = '_'
-    if (winner != '_') {
-      console.log(playerDict)
-      if (player1Name.slice(-1) === winner) {
-          if (player1Name.slice(0, -1) === playerDict["player1"][0].slice(0, -1)) { // if the current p1 is the actual p1
-            playerDict["player1"][1]++ // then the actual p1 gets the point
-          } else {
-            playerDict["player2"][1]++ // else the actual p2 gets the point
-          }
-      }
-      else if (player2Name.slice(-1) === winner) { 
-        if (player2Name.slice(0, -1) === playerDict["player2"][0].slice(0, -1)) { // else if the current p2 is the actual p2 
-          playerDict["player2"][1]++ // then the actual p2 gets the point
-        } else {
-          playerDict["player1"][1]++ // else the actual p1 gets the point
-        }
-      } 
-      try {
-        player1Score = playerDict["player1"][1]
-        player2Score = playerDict["player2"][1]
-      } catch (TypeError) {
-        console.log("playerDict[\"player1/2\"][1/2] doesN't exist")
-      }
+    if (winner != '_' && winner != null) {
+      if (player1.symbol === winner) player1.score++
+      else if (player2.symbol === winner) player2.score++
     }
-
+    console.log(player1, player2)
     io.emit(
       'board-state',
       JSON.stringify({
@@ -159,11 +125,9 @@ io.on('connect', socket => {
         turnCount,
         winner,
         clear: false,
-        player1Score,
-        player2Score,
-        player1Name,
-        player2Name,
-      })
+        player1,
+        player2,
+      }),
     )
     console.table({
       INFO: 'Emitted to all:',
@@ -171,18 +135,16 @@ io.on('connect', socket => {
       turnCount,
       winner,
       clear: false,
-      player1Score,
-      player2Score,
-      player1Name,
-      player2Name,
+      player1,
+      player2,
     })
   })
 
-  socket.on('message', data => {
+  socket.on('message', (data) => {
     socket.broadcast.emit(data)
   })
 
-  socket.on('debug', data => {
+  socket.on('debug', (data) => {
     console.log(data)
     socket.emit('debug', `server response: ${data}`)
   })
